@@ -13,10 +13,10 @@ const companySchema = new Schema<companyInterface>(
       ref: "companies",
     },
     price: {
-      type: String,
+      type: Number,
     },
     discount: {
-      type: String,
+      type: Number,
     },
   },
   { timestamps: true }

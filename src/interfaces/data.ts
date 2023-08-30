@@ -2,15 +2,17 @@ import { ObjectId } from "mongoose";
 
 // ----------------------------- Company Interface
 export interface companyInterface {
+  _id?: ObjectId;
   company_id: String;
-  price: String;
-  discount: String;
+  price: number;
+  discount: number;
 }
 // ----------------------------- Company Interface
 
 // ----------------------------- Rating Interface
 
 export interface ratingInterface {
+  _id?: ObjectId;
   rating_value: String;
   companies: Array<companyInterface>;
 }
@@ -20,6 +22,7 @@ export interface ratingInterface {
 // ----------------------------- Catalog Interface
 
 export interface catalogInterface {
+  _id?: ObjectId;
   catalog_number: String;
   rating: Array<ratingInterface>;
 }

@@ -19,17 +19,23 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Logger of Requests
+app.use(logger("dev"));
+
 // BodyParser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Routes
+app.get("/", (req, res) => {
+  res.send("Welcome to the API");
+});
 
 import CompanyRoutes from "./routes/companies";
 app.use("/api/company", CompanyRoutes);
 
 import DataRoutes from "./routes/data";
 app.use("/api/data", DataRoutes);
-
 
 // Error Handlings
 app.use(function (req, res, next) {

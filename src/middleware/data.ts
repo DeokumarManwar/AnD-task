@@ -1,87 +1,223 @@
 import { Request, Response, NextFunction } from "express";
+import {
+  catalogInterface,
+  companyInterface,
+  ratingInterface,
+} from "../interfaces/data";
 
+// create data middleware
 export const createDataMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { desc, catalog } = req.body;
+  try {
+    const { desc, catalog } = req.body;
+    const errors: string[] = [];
 
-  let error = false;
+    if (!desc || !catalog) {
+      errors.push("Description and Catalog are required");
+    }
 
-  if (desc === undefined || desc === null || desc === "") {
-    res.status(400).send({ message: "Description is required" });
-  } else if (catalog === undefined || catalog === null || catalog === "") {
-    res.status(400).send({ message: "Catalog is required" });
-  } else
-    catalog.forEach((cat: any) => {
+    catalog.forEach((cat: catalogInterface) => {
       const { catalog_number, rating } = cat;
-
-      if (
-        catalog_number === undefined ||
-        catalog_number === null ||
-        catalog_number === ""
-      ) {
-        res.status(400).send({ message: "Catalog Number is required" });
-        error = true;
-      } else if (rating === undefined || rating === null || rating === "") {
-        res.status(400).send({ message: "Rating is required" });
-        error = true;
-      } else
-        rating.forEach((rat: any) => {
-          const { rating_value, companies } = rat;
-
+      if (!catalog_number || !rating) {
+        errors.push("Catalog Number and Rating are required");
+      }
+      rating.forEach((rat: ratingInterface) => {
+        const { rating_value, companies } = rat;
+        if (!rating_value || !companies) {
+          errors.push("Rating Value and Companies are required");
+        }
+        companies.forEach((comp: companyInterface) => {
+          const { company_id, price, discount } = comp;
           if (
-            rating_value === undefined ||
-            rating_value === null ||
-            rating_value === ""
+            !company_id ||
+            !price ||
+            !discount ||
+            discount < 0 ||
+            discount > 100
           ) {
-              res.status(400).send({ message: "Rating Value is required" });
-              error = true;
-          } else if (
-            companies === undefined ||
-            companies === null ||
-            companies === ""
-          ) {
-              res.status(400).send({ message: "Companies is required" });
-              error = true;
-          } else
-            companies.forEach((comp: any) => {
-              const { company_id, price, discount } = comp;
-
-              if (
-                company_id === undefined ||
-                company_id === null ||
-                company_id === ""
-              ) {
-                res.status(400).send({
-                  message:
-                    "Company ID is required at rating value " + rating_value,
-                });
-                  error = true;
-              } else if (
-                price === undefined ||
-                price === null ||
-                price === ""
-              ) {
-                  res.status(400).send({ message: "Price is required" });
-                  error = true;
-              } else if (
-                discount === undefined ||
-                discount === null ||
-                discount === ""
-              ) {
-                  res.status(400).send({ message: "Discount is required" });
-                  error = true;
-              } else if (Number(discount) < 0 || Number(discount) > 100) {
-                res
-                  .status(400)
-                      .send({ message: "Discount should be between 0 and 100" });
-                  error = true;
-              }
-            });
+            errors.push("Invalid Company Data");
+          }
         });
+      });
     });
 
-    if (!error) next();
+    if (errors.length > 0) {
+      return res.status(400).json({ message: "Validation errors", errors });
+    }
+
+    next();
+  } catch (error: any) {
+    res.status(500).json({ message: "Something went wrong", error: error });
+  }
+};
+
+// get all data middleware
+export const getOneDataMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id }: { id?: string } = req.params;
+  if (!id) {
+    res.status(400).send({ message: "ID is required" });
+  }
+
+  next();
+};
+
+// delete data middleware
+export const deleteDataMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id }: { id?: string } = req.params;
+
+  if (!id) {
+    res.status(400).send({ message: "ID is required" });
+  }
+
+  next();
+};
+
+// update data middleware
+export const updateDataMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { type, id, data } = req.body;
+  const errors: string[] = [];
+
+  if (!type || type > 4 || type < 1) {
+    errors.push("Invalid Type");
+  }
+
+  // type 1: Update data
+  // type 2: Update catalog
+  // type 3: Update rating
+  // type 4: Update company
+
+  if (!id) {
+    errors.push("ID is required");
+  }
+
+  switch (type) {
+    // type 1: Update data
+    case 1: {
+      const { desc, catalog } = data;
+      if (!desc || !catalog) {
+        errors.push("Description and Catalog are required");
+      }
+      catalog.forEach((cat: catalogInterface) => {
+        const { catalog_number, rating } = cat;
+        if (!catalog_number || !rating) {
+          errors.push("Catalog Number and Rating are required");
+        }
+        rating.forEach((rat: ratingInterface) => {
+          const { rating_value, companies } = rat;
+          if (!rating_value || !companies) {
+            errors.push("Rating Value and Companies are required");
+          }
+          companies.forEach((comp: companyInterface) => {
+            const { company_id, price, discount } = comp;
+            if (
+              !company_id ||
+              !price ||
+              !discount ||
+              discount < 0 ||
+              discount > 100
+            ) {
+              errors.push("Invalid Company Data");
+            }
+          });
+        });
+      });
+      break;
+    }
+    // type 2: Update catalog
+    case 2: {
+      const { catalog, catalog_id } = data;
+      if (!catalog || !catalog_id) {
+        errors.push("Catalog and Catalog ID are required");
+      }
+      // Catalog validation...
+      const { catalog_number, rating } = catalog;
+      if (!catalog_number || !rating) {
+        errors.push("Catalog Number and Rating are required");
+      }
+      rating.forEach((rat: ratingInterface) => {
+        const { rating_value, companies } = rat;
+        if (!rating_value || !companies) {
+          errors.push("Rating Value and Companies are required");
+        }
+        companies.forEach((comp: companyInterface) => {
+          const { company_id, price, discount } = comp;
+          if (
+            !company_id ||
+            !price ||
+            !discount ||
+            discount < 0 ||
+            discount > 100
+          ) {
+            errors.push("Invalid Company Data");
+          }
+        });
+      });
+      break;
+    }
+    // type 3: Update rating
+    case 3: {
+      const { rating, catalog_id, rating_id } = data;
+      if (!rating || !catalog_id || !rating_id) {
+        errors.push("Rating, Catalog ID and Rating ID are required");
+      }
+      // Rating validation...
+      const { rating_value, companies } = rating;
+      if (!rating_value || !companies) {
+        errors.push("Rating Value and Companies are required");
+      }
+      companies.forEach((comp: companyInterface) => {
+        const { company_id, price, discount } = comp;
+        if (
+          !company_id ||
+          !price ||
+          !discount ||
+          discount < 0 ||
+          discount > 100
+        ) {
+          errors.push("Invalid Company Data");
+        }
+      });
+      break;
+    }
+    // type 4: Update company
+    case 4: {
+      const { company, catalog_id, rating_id, company_id } = data;
+      if (
+        !company.company_id ||
+        !company.price ||
+        !company.discount ||
+        company.discount < 0 ||
+        company.discount > 100 ||
+        !catalog_id ||
+        !rating_id ||
+        !company_id
+      ) {
+        errors.push("Invalid Company Data, Catalog ID, or Rating ID");
+      }
+      break;
+    }
+    default:
+      errors.push("Invalid Type");
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ message: "Validation errors", errors });
+  }
+
+  next();
 };
