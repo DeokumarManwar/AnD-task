@@ -9,16 +9,14 @@ import {
 const companySchema = new Schema<companyInterface>(
   {
     company_id: {
-      type: String,
-      required: true,
+      type: Schema.Types.ObjectId,
+      ref: "companies",
     },
     price: {
       type: String,
-      required: true,
     },
     discount: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true }
@@ -28,11 +26,9 @@ const ratingSchema = new Schema<ratingInterface>(
   {
     rating_value: {
       type: String,
-      required: true,
     },
     companies: {
       type: [companySchema],
-      required: true,
     },
   },
   { timestamps: true }
@@ -46,7 +42,6 @@ const catalogSchema = new Schema<catalogInterface>(
     },
     rating: {
       type: [ratingSchema],
-      required: true,
     },
   },
   { timestamps: true }
@@ -58,6 +53,7 @@ const dataSchema = new Schema<DESC>(
       type: String,
       required: true,
       unique: true,
+      message: "Name is required and should be unique.",
     },
     catalog: {
       type: [catalogSchema],
