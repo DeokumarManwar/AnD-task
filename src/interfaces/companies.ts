@@ -4,6 +4,7 @@ import { ObjectId } from "mongoose";
 
 export interface companyInterface {
   _id: ObjectId;
+  name : String
   price: String;
   discount: String;
 }

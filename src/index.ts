@@ -23,10 +23,13 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-app.use("/", (req, res) => {
-  res.send("Hello World");
-});
+
+import CompanyRoutes from "./routes/companies";
+app.use("/api/company", CompanyRoutes);
+
+import DataRoutes from "./routes/data";
+app.use("/api/data", DataRoutes);
+
 
 // Error Handlings
 app.use(function (req, res, next) {

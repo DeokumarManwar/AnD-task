@@ -3,13 +3,8 @@ import { companyInterface } from "../interfaces/companies";
 
 const companySchema = new Schema<companyInterface>(
   {
-    price: {
+    name: {
       type: String,
-      required: true,
-    },
-    discount: {
-      type: String,
-      required: true,
     },
   },
   { timestamps: true }
