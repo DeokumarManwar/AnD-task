@@ -4,6 +4,7 @@ import {
   getOneDataMiddleware,
   deleteDataMiddleware,
   updateDataMiddleware,
+  deleteDataMiddlewarePut,
 } from "../middleware/data";
 import {
   createDataController,
@@ -11,6 +12,7 @@ import {
   getOneDataController,
   deleteDataController,
   updateDataController,
+  deleteDataControllerThroughUpdate,
 } from "../controller/data";
 const router: Router = Router();
 
@@ -27,5 +29,12 @@ router.put("/update", updateDataMiddleware, updateDataController);
 
 // Delete Data API
 router.delete("/delete/:id", deleteDataMiddleware, deleteDataController);
+
+// Delete Data API put
+router.put(
+  "/delete",
+  deleteDataMiddlewarePut,
+  deleteDataControllerThroughUpdate
+);
 
 export default router;

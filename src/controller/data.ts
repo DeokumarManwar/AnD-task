@@ -54,23 +54,6 @@ export const getOneDataController = async (req: Request, res: Response) => {
   }
 };
 
-// Delete Data Controller
-export const deleteDataController = async (req: Request, res: Response) => {
-  try {
-    const foundData: DESC | null = await dataModel.findByIdAndDelete(
-      req.params.id
-    );
-
-    if (foundData) {
-      res
-        .status(200)
-        .json({ message: "successfully deleted data", data: foundData });
-    }
-  } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
-  }
-};
-
 // Update Data Controller
 export const updateDataController = async (req: Request, res: Response) => {
   try {
@@ -174,5 +157,131 @@ export const updateDataController = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     res.status(500).json({ message: "Something went wrong", error: error });
+  }
+};
+
+// Delete Data Controller
+export const deleteDataController = async (req: Request, res: Response) => {
+  try {
+    const foundData: DESC | null = await dataModel.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (foundData) {
+      res
+        .status(200)
+        .json({ message: "successfully deleted data", data: foundData });
+    }
+  } catch (error: any) {
+    res.status(500).json({ message: "Something went wrong", error: error });
+  }
+};
+
+// Delete Data Controller Through Update
+export const deleteDataControllerThroughUpdate = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id, type, catalog_id } = req.body;
+    const foundData = await dataModel.findById(id);
+
+    if (!foundData) {
+      return res.status(400).send({ message: "Data not found" });
+    } else {
+      if (type === 1) {
+        const prevLength = foundData.catalog.length;
+        // remove not needed catalog
+        foundData.catalog = foundData.catalog.filter(
+          (cat: catalogInterface) => {
+            return cat._id?.toString() !== catalog_id;
+          }
+        );
+        const afterLength = foundData.catalog.length;
+
+        //Error: Catalog not found
+        if (prevLength === afterLength) {
+          return res.status(400).send({ message: "Catalog not found" });
+        }
+
+        await foundData.save();
+        return res
+          .status(200)
+          .json({ message: "Data updated Successfully", data: foundData });
+      } else if (type === 2) {
+        // remove not needed rating
+        const { rating_id } = req.body;
+        let foundRatingData = false;
+
+        // remove not needed catalog
+        foundData.catalog.map((cat: catalogInterface) => {
+          if (cat._id?.toString() === catalog_id) {
+            foundRatingData = true;
+            const prevLength = cat.rating.length;
+            cat.rating = cat.rating.filter((rat: ratingInterface) => {
+              return rat._id?.toString() !== rating_id;
+            });
+            const afterLength = cat.rating.length;
+
+            //Error: Rating not found
+            if (prevLength === afterLength) {
+              return res.status(400).send({ message: "Rating not found" });
+            }
+          }
+
+          if (!foundRatingData) {
+            return res.status(400).send({ message: "Rating not found" });
+          }
+        });
+
+        await foundData.save();
+        return res
+          .status(200)
+          .json({ message: "Data updated Successfully", data: foundData });
+      } else if (type === 3) {
+        const { company_id } = req.body;
+        let foundRatingData = false;
+        let foundCatalogData = false;
+
+        // remove not needed catalog
+        foundData.catalog.map((cat: catalogInterface) => {
+          if (cat._id?.toString() === catalog_id) {
+            foundCatalogData = true;
+            cat.rating.map((rat: ratingInterface) => {
+              if (rat._id?.toString() === req.body.rating_id) {
+                foundRatingData = true;
+                const prevLength = rat.companies.length;
+                rat.companies = rat.companies.filter((com) => {
+                  return com._id?.toString() !== company_id;
+                });
+                const afterLength = rat.companies.length;
+
+                //Error: Company not found
+                if (prevLength === afterLength) {
+                  return res.status(400).send({ message: "Company not found" });
+                }
+              }
+            });
+          }
+        });
+
+        if (!foundRatingData) {
+          return res.status(400).send({ message: "Company not found" });
+        }
+
+        if (!foundCatalogData) {
+          return res.status(400).send({ message: "Catalog not found" });
+        }
+
+        await foundData.save();
+        return res
+          .status(200)
+          .json({ message: "Data updated Successfully", data: foundData });
+      }
+    }
+  } catch (error: any) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };

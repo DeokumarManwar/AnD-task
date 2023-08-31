@@ -16,7 +16,9 @@ export const createDataMiddleware = (
     const errors: string[] = [];
 
     if (!desc || !catalog) {
-      errors.push("Description and Catalog are required");
+      return res
+        .status(400)
+        .json({ message: "Description and Catalog are required" });
     }
 
     catalog.forEach((cat: catalogInterface) => {
@@ -93,7 +95,7 @@ export const updateDataMiddleware = (
   const errors: string[] = [];
 
   if (!type || type > 4 || type < 1) {
-    errors.push("Invalid Type");
+    return res.status(400).json({ message: "type is required" });
   }
 
   // type 1: Update data
@@ -102,7 +104,7 @@ export const updateDataMiddleware = (
   // type 4: Update company
 
   if (!id) {
-    errors.push("ID is required");
+    return res.status(400).json({ message: "ID is required" });
   }
 
   switch (type) {
@@ -217,6 +219,50 @@ export const updateDataMiddleware = (
 
   if (errors.length > 0) {
     return res.status(400).json({ message: "Validation errors", errors });
+  }
+
+  next();
+};
+
+// Delete data middleware through put request
+export const deleteDataMiddlewarePut = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { type, id } = req.body;
+
+  if (!type || type > 3 || type < 1) {
+    return res.status(400).json({ message: "type is required" });
+  }
+
+  // type 1: Delete catalog
+  // type 2: Delete rating
+  // type 3: Delete company
+
+  if (!id) {
+    return res.status(400).json({ message: "ID is required" });
+  }
+
+  if (type === 1) {
+    const { catalog_id } = req.body;
+    if (!catalog_id) {
+      return res.status(400).json({ message: "Catalog ID is required" });
+    }
+  } else if (type === 2) {
+    const { catalog_id, rating_id } = req.body;
+    if (!catalog_id || !rating_id) {
+      return res
+        .status(400)
+        .json({ message: "Catalog ID and Rating ID are required" });
+    }
+  } else if (type === 3) {
+    const { catalog_id, rating_id, company_id } = req.body;
+    if (!catalog_id || !rating_id || !company_id) {
+      return res
+        .status(400)
+        .json({ message: "Catalog ID, Rating ID and Company ID are required" });
+    }
   }
 
   next();
