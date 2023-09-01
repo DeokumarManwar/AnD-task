@@ -10,18 +10,20 @@ export const createDataController = async (req: Request, res: Response) => {
     });
 
     if (findData) {
-      res.status(400).send({ message: "Data already exists" });
+     return res.status(400).send({ message: "Data already exists" });
     } else {
       const data: DESC = await dataModel.create(req.body);
 
       if (data) {
-        res
-          .status(200)
-          .json({ message: "successfully created data", data: data });
+       return res
+         .status(200)
+         .json({ message: "successfully created data", data: data });
       }
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -31,12 +33,14 @@ export const getAllDataController = async (req: Request, res: Response) => {
     const data: DESC[] = await dataModel.find();
 
     if (data) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully fetched data", data: data });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -45,12 +49,14 @@ export const getOneDataController = async (req: Request, res: Response) => {
     const data: DESC | null = await dataModel.findById(req.params.id);
 
     if (data) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully fetched data", data: data });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -60,7 +66,7 @@ export const updateDataController = async (req: Request, res: Response) => {
     let foundData = await dataModel.findById(req.body.id);
 
     if (!foundData) {
-      res.status(400).send({ message: "Data not found" });
+      return res.status(400).send({ message: "Data not found" });
     } else {
       let updated = false;
       // type 1: Update data
@@ -156,7 +162,9 @@ export const updateDataController = async (req: Request, res: Response) => {
       }
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+   return res
+     .status(500)
+     .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -168,12 +176,14 @@ export const deleteDataController = async (req: Request, res: Response) => {
     );
 
     if (foundData) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully deleted data", data: foundData });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 

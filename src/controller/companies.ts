@@ -10,12 +10,14 @@ export const createCompanyController = async (req: Request, res: Response) => {
     });
 
     if (company) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully created company", data: company });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -28,12 +30,14 @@ export const getAllCompaniesController = async (
     const companies: companyInterface[] = await companyModel.find();
 
     if (companies) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully fetched companies", data: companies });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -47,30 +51,33 @@ export const getOneCompaniesController = async (
     );
 
     if (company) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully fetched company", data: company });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
 // Update Company Controller
 export const updateCompanyController = async (req: Request, res: Response) => {
   try {
-    const company: companyInterface | null =
-      await companyModel.findByIdAndUpdate(req.body.id, req.body.name, {
-        new: true,
-      });
+    const company = await companyModel.findById(req.body.id);
 
     if (company) {
-      res
+      company.name = req.body.name;
+      await company.save();
+      return res
         .status(200)
         .json({ message: "successfully updated company", data: company });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -81,11 +88,13 @@ export const deleteCompanyController = async (req: Request, res: Response) => {
       await companyModel.findByIdAndDelete(req.params.id);
 
     if (company) {
-      res
+      return res
         .status(200)
         .json({ message: "successfully deleted company", data: company });
     }
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };

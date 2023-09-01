@@ -52,7 +52,9 @@ export const createDataMiddleware = (
 
     next();
   } catch (error: any) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
 };
 
@@ -64,7 +66,7 @@ export const getOneDataMiddleware = (
 ) => {
   const { id }: { id?: string } = req.params;
   if (!id) {
-    res.status(400).send({ message: "ID is required" });
+    return res.status(400).send({ message: "ID is required" });
   }
 
   next();
@@ -79,7 +81,7 @@ export const deleteDataMiddleware = (
   const { id }: { id?: string } = req.params;
 
   if (!id) {
-    res.status(400).send({ message: "ID is required" });
+    return res.status(400).send({ message: "ID is required" });
   }
 
   next();

@@ -9,7 +9,7 @@ export const createCompanyMiddleware = (
 
   const { name } = req.body;
   if (!name) {
-    res.status(400).send({ message: "Name is required" });
+    return res.status(400).send({ message: "Name is required" });
   }
 
   next();
@@ -22,7 +22,7 @@ export const getOneCompanyMiddleware = (
 ) => {
   const { id } = req.params;
   if (!id) {
-    res.status(400).send({ message: "ID is required" });
+    return res.status(400).send({ message: "ID is required" });
   }
 
   next();
@@ -35,7 +35,7 @@ export const deleteCompanyMiddleware = (
 ) => {
   const { id } = req.params;
   if (!id) {
-    res.status(400).send({ message: "ID is required" });
+    return res.status(400).send({ message: "ID is required" });
   }
 
   next();
@@ -48,10 +48,10 @@ export const updateCompanyMiddleware = (
 ) => {
   const { id,name } = req.body;
   if (!id) {
-    res.status(400).send({ message: "ID is required" });
+    return res.status(400).send({ message: "ID is required" });
   }
   if (!name) {
-    res.status(400).send({ message: "Name is required" });
+    return res.status(400).send({ message: "Name is required" });
   }
 
   next();
